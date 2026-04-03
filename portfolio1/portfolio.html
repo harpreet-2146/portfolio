@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harpreet Kaur Gothra</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root {
+  --black: #0d0d0d;
+  --paper: #f5f0e4;
+  --paper2: #ede7d3;
+  --yellow: #ffd400;
+  --red: #e63946;
+  --blue: #1a6cf2;
+  --purple: #7b2d8b;
+  --ink: #0d0d0d;
+  --panel-shadow: 6px 6px 0px var(--ink);
+  --panel-border: 3px solid var(--ink);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* halftone dot bg pattern */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(13,13,13,0.08) 1.2px, transparent 1.2px);
+  background-size: 14px 14px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Cursor */
+.cursor { position: fixed; width: 12px; height: 12px; background: var(--red); border: 2px solid var(--ink); border-radius: 0; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%) rotate(45deg); transition: width .15s, height .15s; }
+.cursor-ring { position: fixed; width: 36px; height: 36px; border: 2px solid var(--ink); border-radius: 0; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: transform .12s ease-out; }
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: var(--yellow);
+  border-bottom: var(--panel-border);
+  padding: 0.85rem 3rem;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-logo {
+  font-family: 'Bangers', cursive;
+  font-size: 1.6rem;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+  text-decoration: none;
+}
+.nav-logo span { color: var(--red); }
+.nav-links { list-style: none; display: flex; gap: 2rem; }
+.nav-links a {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  color: var(--ink);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.nav-links a:hover { color: var(--red); }
+
+/* HERO */
+#hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  padding-top: 72px;
+  border-bottom: var(--panel-border);
+  background: #0d0d0d;
+}
+#hero-canvas {
+  position: absolute; inset: 0; z-index: 0;
+}
+
+/* speed lines — conic gradient radiating from center */
+.speed-lines {
+  position: absolute; inset: -50%;
+  width: 200%; height: 200%;
+  background: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg,
+    transparent 5.5deg,
+    rgba(255,212,0,0.04) 5.5deg,
+    rgba(255,212,0,0.04) 6deg
+  );
+  pointer-events: none;
+  z-index: 2;
+  animation: spinSlow 60s linear infinite;
+}
+@keyframes spinSlow { to { transform: rotate(360deg); } }
+
+
+.hero-content {
+  position: relative; z-index: 3;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 3rem;
+  align-items: center;
+  max-width: 1200px;
+  width: 100%;
+  padding: 0 3rem;
+}
+
+.hero-left {}
+
+.hero-caption {
+  display: inline-block;
+  background: var(--yellow);
+  color: var(--ink);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.85rem;
+  border: 2px solid var(--yellow);
+  box-shadow: 3px 3px 0 var(--red);
+  margin-bottom: 1.25rem;
+}
+
+.hero-name {
+  font-family: 'Bangers', cursive;
+  font-size: clamp(4.5rem, 10vw, 9rem);
+  line-height: 0.88;
+  letter-spacing: 0.03em;
+  color: var(--ink);
+  /* misregistration print effect */
+  text-shadow:
+    3px 3px 0 var(--red),
+    -2px -2px 0 var(--blue);
+  margin-bottom: 1rem;
+}
+.hero-name .line2 { color: var(--red); text-shadow: 3px 3px 0 var(--ink), -1px -1px 0 var(--yellow); }
+
+.hero-tagline-box {
+  background: var(--ink);
+  color: var(--yellow);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(1rem, 2.2vw, 1.5rem);
+  letter-spacing: 0.1em;
+  padding: 0.75rem 1.25rem;
+  border: 2px solid var(--ink);
+  margin-bottom: 2rem;
+  display: inline-block;
+  position: relative;
+}
+.hero-tagline-box::after {
+  content: '';
+  position: absolute;
+  bottom: -8px; right: -8px;
+  width: 100%; height: 100%;
+  background: var(--yellow);
+  border: 2px solid var(--ink);
+  z-index: -1;
+}
+
+.hero-sub {
+  font-size: 1rem;
+  color: rgba(245,240,228,0.75);
+  max-width: 440px;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+
+.hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; }
+.btn {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.12em;
+  padding: 0.65rem 2rem;
+  border: var(--panel-border);
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.1s, box-shadow 0.1s;
+  display: inline-block;
+}
+.btn:active { transform: translate(3px, 3px); box-shadow: none !important; }
+.btn-primary { background: var(--red); color: white; box-shadow: 4px 4px 0 var(--ink); }
+.btn-primary:hover { box-shadow: 6px 6px 0 var(--ink); transform: translate(-2px, -2px); }
+.btn-secondary { background: var(--paper); color: var(--ink); box-shadow: 4px 4px 0 var(--ink); }
+.btn-secondary:hover { box-shadow: 6px 6px 0 var(--ink); transform: translate(-2px, -2px); }
+
+/* stat box on right */
+.hero-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.stat-bubble {
+  background: rgba(255,255,255,0.05);
+  border: 2px solid rgba(255,212,0,0.4);
+  box-shadow: 4px 4px 0 var(--red);
+  padding: 1rem 1.25rem;
+  position: relative;
+}
+.stat-bubble::before {
+  content: attr(data-label);
+  position: absolute;
+  top: -10px; left: 10px;
+  background: var(--yellow);
+  border: 2px solid var(--ink);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.4rem;
+  color: var(--ink);
+}
+.stat-n {
+  font-family: 'Bangers', cursive;
+  font-size: 2.5rem;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  color: var(--yellow);
+}
+.stat-desc { font-size: 0.75rem; color: rgba(245,240,228,0.5); margin-top: 0.1rem; font-family: 'JetBrains Mono', monospace; }
+
+/* POW effects */
+.pow {
+  position: absolute;
+  font-family: 'Bangers', cursive;
+  font-size: 2rem;
+  color: var(--yellow);
+  text-shadow: 2px 2px 0 var(--ink);
+  pointer-events: none;
+  animation: powPop 0.5s ease-out forwards;
+  z-index: 10;
+}
+@keyframes powPop { 0% { transform: scale(0) rotate(-15deg); opacity: 1; } 60% { transform: scale(1.3) rotate(5deg); } 100% { transform: scale(1) rotate(-5deg); opacity: 0.8; } }
+
+/* SECTIONS */
+section { padding: 6rem 0; position: relative; z-index: 1; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 3rem; }
+
+/* Section header — comic chapter style */
+.chapter-header {
+  display: flex; align-items: center; gap: 1.5rem;
+  margin-bottom: 3.5rem;
+  border-bottom: var(--panel-border);
+  padding-bottom: 1.25rem;
+}
+.chapter-num {
+  font-family: 'Bangers', cursive;
+  font-size: 5rem;
+  line-height: 1;
+  color: var(--paper2);
+  -webkit-text-stroke: 3px var(--ink);
+  letter-spacing: 0.02em;
+}
+.chapter-text {}
+.chapter-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 0.25rem;
+}
+.chapter-title {
+  font-family: 'Bangers', cursive;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: var(--ink);
+}
+
+/* ABOUT */
+#about { background: var(--paper); border-top: var(--panel-border); border-bottom: var(--panel-border); }
+.about-panels {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 1.5rem;
+}
+.about-panel-main {
+  background: white;
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  padding: 2rem;
+  position: relative;
+}
+.panel-caption {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: white;
+  background: var(--ink);
+  padding: 0.3rem 0.75rem;
+  display: inline-block;
+  margin-bottom: 1.25rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.about-panel-main p {
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: var(--ink);
+  margin-bottom: 1rem;
+  opacity: 0.85;
+}
+.about-panel-main p strong { opacity: 1; font-weight: 500; }
+.speech-bubble {
+  position: relative;
+  background: var(--yellow);
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  padding: 1.25rem 1.5rem;
+  margin-top: 1.5rem;
+}
+.speech-bubble::before {
+  content: '';
+  position: absolute;
+  top: -18px; left: 24px;
+  border: 9px solid transparent;
+  border-bottom-color: var(--ink);
+}
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  top: -12px; left: 26px;
+  border: 7px solid transparent;
+  border-bottom-color: var(--yellow);
+}
+.speech-bubble p {
+  font-family: 'Bangers', cursive;
+  font-size: 1.25rem;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+.about-side { display: flex; flex-direction: column; gap: 1.5rem; }
+.power-panel {
+  background: white;
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  padding: 1.5rem;
+  flex: 1;
+}
+.power-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  color: var(--ink);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--ink);
+}
+.power-bar { margin-bottom: 0.75rem; }
+.power-name {
+  display: flex; justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.3rem;
+  color: var(--ink);
+}
+.power-track {
+  height: 12px;
+  background: var(--paper2);
+  border: 2px solid var(--ink);
+  position: relative;
+  overflow: hidden;
+}
+.power-fill {
+  height: 100%;
+  background: var(--ink);
+  position: relative;
+}
+.power-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0, transparent 4px, rgba(255,255,255,0.3) 4px, rgba(255,255,255,0.3) 5px);
+}
+
+/* PROJECTS */
+#projects { background: var(--paper2); border-top: var(--panel-border); border-bottom: var(--panel-border); }
+.comic-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto;
+  gap: 0;
+  border: var(--panel-border);
+  box-shadow: 8px 8px 0 var(--ink);
+  grid-auto-flow: row dense;
+}
+.comic-panel {
+  border: var(--panel-border);
+  background: white;
+  padding: 1.75rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s, z-index 0s;
+  cursor: pointer;
+}
+.comic-panel:hover { transform: scale(1.03); z-index: 10; box-shadow: 0 0 0 3px var(--ink); }
+.comic-panel.big { grid-column: span 2; }
+.comic-panel.tall { grid-row: span 2; }
+
+/* halftone accent in corner */
+.comic-panel::after {
+  content: '';
+  position: absolute;
+  bottom: -20px; right: -20px;
+  width: 100px; height: 100px;
+  background-image: radial-gradient(circle, var(--ink) 2px, transparent 2px);
+  background-size: 10px 10px;
+  opacity: 0.06;
+  pointer-events: none;
+}
+
+.panel-situation {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: white;
+  background: var(--blue);
+  padding: 0.25rem 0.6rem;
+  display: inline-block;
+  margin-bottom: 1rem;
+  border: 2px solid var(--ink);
+}
+.panel-situation.live { background: var(--red); }
+.panel-situation.sap { background: var(--purple); }
+.panel-problem {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--red);
+  font-style: italic;
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+  opacity: 0.85;
+}
+.panel-problem::before { content: '" '; }
+.panel-problem::after { content: ' "'; }
+.panel-name {
+  font-family: 'Bangers', cursive;
+  font-size: 2.5rem;
+  letter-spacing: 0.04em;
+  line-height: 0.95;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+.panel-name.big-name { font-size: 3.5rem; }
+.panel-insight {
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--ink);
+  opacity: 0.75;
+  margin-bottom: 1.25rem;
+}
+.panel-stack { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 1.25rem; }
+.panel-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  padding: 0.18rem 0.5rem;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  color: var(--ink);
+  letter-spacing: 0.04em;
+}
+.panel-links { display: flex; gap: 0.5rem; }
+.panel-link {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+  color: var(--ink);
+  text-decoration: none;
+  border: 2px solid var(--ink);
+  padding: 0.25rem 0.75rem;
+  transition: all 0.15s;
+  display: inline-flex; align-items: center; gap: 0.3rem;
+}
+.panel-link:hover { background: var(--ink); color: var(--yellow); }
+
+/* action stamp */
+.action-stamp {
+  position: absolute;
+  font-family: 'Bangers', cursive;
+  font-size: 2.5rem;
+  letter-spacing: 0.05em;
+  color: var(--yellow);
+  background: var(--red);
+  border: 3px solid var(--ink);
+  padding: 0.2rem 0.6rem;
+  transform: rotate(-8deg);
+  box-shadow: 3px 3px 0 var(--ink);
+  pointer-events: none;
+}
+
+/* STACK */
+#stack { background: var(--paper); border-top: var(--panel-border); border-bottom: var(--panel-border); }
+.stack-panels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
+.stack-panel {
+  background: white;
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  padding: 1.5rem;
+}
+.stack-panel-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.15em;
+  color: white;
+  background: var(--ink);
+  padding: 0.35rem 0.75rem;
+  margin: -1.5rem -1.5rem 1.25rem;
+  display: block;
+  border-bottom: var(--panel-border);
+}
+.stack-list { list-style: none; }
+.stack-list li {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--ink);
+  padding: 0.45rem 0;
+  border-bottom: 1px dashed rgba(13,13,13,0.15);
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.stack-list li:last-child { border-bottom: none; }
+.stack-bullet { width: 8px; height: 8px; background: var(--red); border: 2px solid var(--ink); flex-shrink: 0; }
+
+/* CONTACT */
+#contact { background: var(--ink); border-top: var(--panel-border); position: relative; overflow: hidden; }
+#contact::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255,212,0,0.15) 1.5px, transparent 1.5px);
+  background-size: 16px 16px;
+  pointer-events: none;
+}
+.contact-inner { position: relative; z-index: 1; text-align: center; padding: 6rem 2rem; }
+.contact-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 1rem;
+}
+.contact-title {
+  font-family: 'Bangers', cursive;
+  font-size: clamp(4rem, 10vw, 9rem);
+  line-height: 0.9;
+  letter-spacing: 0.04em;
+  color: var(--yellow);
+  text-shadow: 4px 4px 0 var(--red), -2px -2px 0 var(--blue);
+  margin-bottom: 1.5rem;
+}
+.contact-sub {
+  font-size: 1rem;
+  color: rgba(245,240,228,0.7);
+  max-width: 400px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.7;
+}
+.contact-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+.contact-link {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.12em;
+  padding: 0.65rem 2rem;
+  text-decoration: none;
+  border: 2px solid var(--yellow);
+  color: var(--yellow);
+  transition: all 0.15s;
+  box-shadow: 4px 4px 0 var(--red);
+}
+.contact-link:hover { background: var(--yellow); color: var(--ink); box-shadow: 6px 6px 0 var(--red); transform: translate(-2px,-2px); }
+
+.footer-bar {
+  border-top: 2px solid rgba(255,212,0,0.2);
+  padding: 1.5rem 3rem;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.footer-bar p { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; color: rgba(245,240,228,0.4); }
+
+/* Reveals */
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 900px) {
+  nav { padding: 0.75rem 1.5rem; }
+  .nav-links { display: none; }
+  .container { padding: 0 1.5rem; }
+  .hero-content { grid-template-columns: 1fr; }
+  .hero-stats { flex-direction: row; flex-wrap: wrap; }
+  .stat-bubble { flex: 1; min-width: 120px; }
+  .about-panels { grid-template-columns: 1fr; }
+  .comic-grid { grid-template-columns: 1fr; }
+  .comic-panel.big, .comic-panel.tall { grid-column: span 1; grid-row: span 1; }
+  .stack-panels { grid-template-columns: repeat(2, 1fr); }
+  .footer-bar { flex-direction: column; gap: 0.5rem; }
+}
+</style>
+</head>
+<body>
+<!-- <svg width="0" height="0" style="position:absolute">
+  <filter id="grain">
+    <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="4" stitchTiles="stitch"/>
+    <feColorMatrix type="saturate" values="0"/>
+    <feBlend in="SourceGraphic" mode="multiply"/>
+  </filter>
+</svg> -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<nav>
+  <a href="#" class="nav-logo">HKG<span>.</span></a>
+  <ul class="nav-links">
+    <li><a href="#about">Origin</a></li>
+    <li><a href="#projects">Case Files</a></li>
+    <li><a href="#stack">Arsenal</a></li>
+    <li><a href="#contact">Signal</a></li>
+  </ul>
+</nav>
+
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="speed-lines"></div>
+
+  <div class="hero-content">
+    <div class="hero-left">
+      <div class="hero-caption">⚡ Computer Science · Bengaluru · Second Year · Already Shipping</div>
+      <h1 class="hero-name">
+        HARPREET<br>
+        <span class="line2">KAUR GOTHRA</span>
+      </h1>
+      <div class="hero-tagline-box">
+        I SEE THE PROBLEM BEFORE IT HAS A NAME.
+      </div>
+      <p class="hero-sub">Full-stack developer & applied AI engineer. I don't wait for someone to define a problem — I find it, frame it, and ship the answer.</p>
+      <div class="hero-cta">
+        <a href="#projects" class="btn btn-primary">Case Files →</a>
+        <a href="https://github.com/harpreet-2146" target="_blank" class="btn btn-secondary">GitHub ↗</a>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat-bubble" data-label="Deployed">
+        <div class="stat-n">02</div>
+        <div class="stat-desc">Live productions</div>
+      </div>
+      <div class="stat-bubble" data-label="Notice">
+        <div class="stat-n">SAP</div>
+        <div class="stat-desc">Enterprise interest</div>
+      </div>
+      <div class="stat-bubble" data-label="Shipped">
+        <div class="stat-n">07+</div>
+        <div class="stat-desc">Real projects</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="container">
+    <div class="chapter-header reveal">
+      <div class="chapter-num">01</div>
+      <div class="chapter-text">
+        <div class="chapter-label">Chapter One</div>
+        <div class="chapter-title">Origin Story</div>
+      </div>
+    </div>
+    <div class="about-panels">
+      <div class="about-panel-main reveal">
+        <div class="panel-caption">// Classified Background</div>
+        <p>Most people see a broken system and shrug. I see a project. I'm a second-year CS student — but the degree is context, not the story.</p>
+        <p>The story is: I build things that didn't exist yet because I noticed a gap everyone else walked past. Real-time misinformation detection. Seat availability via computer vision. Career matching that actually uses intelligence. Enterprise software that caught <strong>SAP's attention</strong>.</p>
+        <p>I work across the full stack, AI/ML, computer vision, and Web3 — not because I'm collecting skills, but because the problems I find don't care about your comfort zone.</p>
+        <div class="speech-bubble">
+          <p>"I'M NOT EARLY. THE PROBLEM WAS JUST INVISIBLE TO EVERYONE ELSE."</p>
+        </div>
+        <div style="margin-top:1rem;display:flex;gap:0.75rem;flex-wrap:wrap">
+          <span style="font-family:'Bangers',cursive;font-size:1.4rem;color:var(--red);text-shadow:2px 2px 0 var(--ink)">SNAP!</span>
+          <span style="font-family:'Bangers',cursive;font-size:1.4rem;color:var(--blue);text-shadow:2px 2px 0 var(--ink)">CRACK!</span>
+          <span style="font-family:'Bangers',cursive;font-size:1.4rem;color:var(--purple);text-shadow:2px 2px 0 var(--ink)">ZAP!</span>
+        </div>
+      </div>
+
+      <div class="about-side reveal">
+        <div class="power-panel">
+          <div class="power-title">// Power Levels</div>
+          <div class="power-bar">
+            <div class="power-name"><span>Problem Finding</span><span>97</span></div>
+            <div class="power-track"><div class="power-fill" style="width:97%"></div></div>
+          </div>
+          <div class="power-bar">
+            <div class="power-name"><span>Full-Stack Systems</span><span>88</span></div>
+            <div class="power-track"><div class="power-fill" style="width:88%"></div></div>
+          </div>
+          <div class="power-bar">
+            <div class="power-name"><span>Applied AI / ML</span><span>84</span></div>
+            <div class="power-track"><div class="power-fill" style="width:84%"></div></div>
+          </div>
+          <div class="power-bar">
+            <div class="power-name"><span>Computer Vision</span><span>80</span></div>
+            <div class="power-track"><div class="power-fill" style="width:80%"></div></div>
+          </div>
+          <div class="power-bar">
+            <div class="power-name"><span>Web3 / Smart Contracts</span><span>75</span></div>
+            <div class="power-track"><div class="power-fill" style="width:75%"></div></div>
+          </div>
+          <div class="power-bar">
+            <div class="power-name"><span>Shipping Fast</span><span>95</span></div>
+            <div class="power-track"><div class="power-fill" style="width:95%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="container">
+    <div class="chapter-header reveal">
+      <div class="chapter-num">02</div>
+      <div class="chapter-text">
+        <div class="chapter-label">Chapter Two</div>
+        <div class="chapter-title">Case Files</div>
+      </div>
+      <span style="font-family:'Bangers',cursive;font-size:2.5rem;color:var(--red);text-shadow:3px 3px 0 var(--ink);margin-left:auto;opacity:0.7">POW!</span>
+    </div>
+
+    <div class="comic-grid reveal">
+
+      <!-- Prism — big panel -->
+      <div class="comic-panel big" style="background:#fafafa">
+        <div class="action-stamp" style="top:1.5rem;right:1.5rem">SAP!</div>
+        <div class="panel-situation sap">Live · Enterprise</div>
+        <div class="panel-problem">Everyone built dashboards. Nobody built intelligence.</div>
+        <div class="panel-name big-name">PRISM</div>
+        <p class="panel-insight">A full-scale intelligence platform in active production. I saw the difference between showing data and understanding it — and built the latter. SAP noticed first.</p>
+        <div class="panel-stack">
+          <span class="panel-tag">React</span><span class="panel-tag">Node.js</span><span class="panel-tag">AI/ML</span><span class="panel-tag">Production Infra</span>
+        </div>
+        <div class="panel-links">
+          <a href="https://prism-g5y3.onrender.com/" target="_blank" class="panel-link">↗ Live</a>
+        </div>
+      </div>
+
+      <!-- Simation -->
+      <div class="comic-panel" style="background:#fffbf0">
+        <div class="action-stamp" style="top:1rem;right:1rem;font-size:1.2rem;transform:rotate(6deg)">TOP 6!</div>
+        <div class="panel-situation live">Live · Deployed</div>
+        <div class="panel-problem">Proof that it runs somewhere other than localhost.</div>
+        <div class="panel-name">SIMATION</div>
+        <p class="panel-insight">Production deployment on Render. Ranked Top 6. Real infra, real uptime, real results.</p>
+        <div class="panel-stack">
+          <span class="panel-tag">JavaScript</span><span class="panel-tag">Node.js</span><span class="panel-tag">Render</span>
+        </div>
+        <div class="panel-links">
+          <a href="https://simation.onrender.com/" target="_blank" class="panel-link">↗ Live</a>
+        </div>
+      </div>
+
+      <!-- QueueLess -->
+      <div class="comic-panel" style="background:#f0f5ff">
+        <div class="panel-situation">Computer Vision</div>
+        <div class="panel-problem">Nobody thought to ask: is there even a seat?</div>
+        <div class="panel-name">QUEUE<br>LESS</div>
+        <p class="panel-insight">Real-time CV detecting seat availability in canteens. The problem was invisible because everyone accepted it.</p>
+        <div class="panel-stack">
+          <span class="panel-tag">Python</span><span class="panel-tag">OpenCV</span><span class="panel-tag">MediaPipe</span>
+        </div>
+        <div class="panel-links">
+          <a href="https://github.com/harpreet-2146/QueueLess" target="_blank" class="panel-link">↗ GitHub</a>
+        </div>
+      </div>
+
+      <!-- FakEye -->
+      <div class="comic-panel" style="background:#fff5f5">
+        <div class="action-stamp" style="bottom:1rem;right:1rem;font-size:1.5rem;transform:rotate(5deg)">BOOM!</div>
+        <div class="panel-situation">NLP · Real-Time</div>
+        <div class="panel-problem">By the time batch processing finished, the lie had already spread.</div>
+        <div class="panel-name">FAK<br>EYE</div>
+        <p class="panel-insight">Stance detection + claim verification at sub-second speed. Built for the actual problem: misinformation is instant.</p>
+        <div class="panel-stack">
+          <span class="panel-tag">Python</span><span class="panel-tag">NLP</span><span class="panel-tag">FastAPI</span>
+        </div>
+        <div class="panel-links">
+          <a href="https://github.com/harpreet-2146/fakeye" target="_blank" class="panel-link">↗ GitHub</a>
+        </div>
+      </div>
+
+      <!-- Zenith Cortex -->
+      <div class="comic-panel" style="background:#f5fff8">
+        <div class="action-stamp" style="top:1rem;right:1rem;font-size:1.4rem;transform:rotate(4deg)">WHAM!</div>
+        <div class="panel-situation">AI · GCP</div>
+        <div class="panel-problem">Great talent, completely invisible to the people looking for it.</div>
+        <div class="panel-name">ZENITH<br>CORTEX</div>
+        <p class="panel-insight">Resume → skill graph → recruiter match on Vertex AI. Not a job board. An intelligence layer between talent and opportunity.</p>
+        <div class="panel-stack">
+          <span class="panel-tag">Vertex AI</span><span class="panel-tag">GCP</span><span class="panel-tag">React</span><span class="panel-tag">NLP</span>
+        </div>
+        <div class="panel-links">
+          <a href="https://github.com/harpreet-2146/Zenith-Cortex" target="_blank" class="panel-link">↗ GitHub</a>
+        </div>
+      </div>
+
+      <!-- FM-Demo -->
+      <div class="comic-panel" style="background:#fff8f0">
+        <div class="action-stamp" style="top:1rem;right:1rem;font-size:1.4rem;transform:rotate(-6deg)">KA-CHING!</div>
+        <div class="panel-situation live">Client Secured</div>
+        <div class="panel-problem">A demo so good it closed a real deal.</div>
+        <div class="panel-name">FM<br>DEMO</div>
+        <p class="panel-insight">Built this, sent it, secured a client. Sometimes the project IS the pitch — and the pitch worked.</p>
+        <div class="panel-stack">
+          <span class="panel-tag">React</span><span class="panel-tag">Node.js</span><span class="panel-tag">Full-Stack</span>
+        </div>
+        <div class="panel-links">
+          <a href="https://github.com/harpreet-2146" target="_blank" class="panel-link">↗ GitHub</a>
+        </div>
+      </div>
+
+      <!-- Hivemind -->
+      <div class="comic-panel" style="background:#f8f0ff">
+        <div class="action-stamp" style="top:1rem;right:1rem;font-size:1.4rem;transform:rotate(-4deg)">ZRAK!</div>
+        <div class="panel-situation">Distributed AI</div>
+        <div class="panel-problem">What if truth could be reasoned across systems, in real time?</div>
+        <div class="panel-name">HIVE<br>MIND</div>
+        <p class="panel-insight">Distributed intelligence engine for real-time reasoning and insight. Not retrieval — actual reasoning, routed across sources simultaneously.</p>
+        <div class="panel-stack">
+          <span class="panel-tag">JavaScript</span><span class="panel-tag">Distributed Systems</span><span class="panel-tag">AI</span>
+        </div>
+        <div class="panel-links">
+          <a href="https://github.com/harpreet-2146/hivemind" target="_blank" class="panel-link">↗ GitHub</a>
+        </div>
+      </div>
+
+      <!-- DevLance -->
+      <div class="comic-panel" style="background:#fdf5ff">
+        <div class="action-stamp" style="top:1rem;right:1rem;font-size:1.3rem;transform:rotate(7deg)">KRAK!</div>
+        <div class="panel-situation">Web3</div>
+        <div class="panel-problem">Trust in freelancing shouldn't depend on a stranger keeping their word.</div>
+        <div class="panel-name">DEV<br>LANCE</div>
+        <p class="panel-insight">Smart contract escrow — financial logic lives on-chain, not in a terms-of-service. No middlemen. No disputes.</p>
+        <div class="panel-stack">
+          <span class="panel-tag">Solidity</span><span class="panel-tag">Web3.js</span><span class="panel-tag">React</span>
+        </div>
+        <div class="panel-links">
+          <a href="https://github.com/SnippetTechie/DevLance" target="_blank" class="panel-link">↗ GitHub</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- STACK -->
+<section id="stack">
+  <div class="container">
+    <div class="chapter-header reveal">
+      <div class="chapter-num">03</div>
+      <div class="chapter-text">
+        <div class="chapter-label">Chapter Three</div>
+        <div class="chapter-title">The Arsenal</div>
+      </div>
+      <span style="font-family:'Bangers',cursive;font-size:2.5rem;color:var(--blue);text-shadow:3px 3px 0 var(--ink);margin-left:auto;opacity:0.7">BAAM!</span>
+    </div>
+    <div class="stack-panels reveal">
+      <div class="stack-panel">
+        <span class="stack-panel-title">Frontend</span>
+        <ul class="stack-list">
+          <li><div class="stack-bullet"></div>React + Vite</li>
+          <li><div class="stack-bullet"></div>Tailwind CSS</li>
+          <li><div class="stack-bullet"></div>Three.js</li>
+          <li><div class="stack-bullet"></div>GSAP</li>
+          <li><div class="stack-bullet"></div>Figma</li>
+        </ul>
+      </div>
+      <div class="stack-panel">
+        <span class="stack-panel-title">Backend</span>
+        <ul class="stack-list">
+          <li><div class="stack-bullet"></div>Node.js + Express</li>
+          <li><div class="stack-bullet"></div>FastAPI · Flask</li>
+          <li><div class="stack-bullet"></div>MongoDB</li>
+          <li><div class="stack-bullet"></div>PostgreSQL</li>
+          <li><div class="stack-bullet"></div>Firebase</li>
+        </ul>
+      </div>
+      <div class="stack-panel">
+        <span class="stack-panel-title">AI / ML</span>
+        <ul class="stack-list">
+          <li><div class="stack-bullet"></div>Vertex AI (GCP)</li>
+          <li><div class="stack-bullet"></div>OpenCV · MediaPipe</li>
+          <li><div class="stack-bullet"></div>NLP Pipelines</li>
+          <li><div class="stack-bullet"></div>Computer Vision</li>
+          <li><div class="stack-bullet"></div>Python · NumPy</li>
+        </ul>
+      </div>
+      <div class="stack-panel">
+        <span class="stack-panel-title">Infra · Web3</span>
+        <ul class="stack-list">
+          <li><div class="stack-bullet"></div>Docker</li>
+          <li><div class="stack-bullet"></div>GCP · Vercel</li>
+          <li><div class="stack-bullet"></div>Solidity</li>
+          <li><div class="stack-bullet"></div>Web3.js · Ethers</li>
+          <li><div class="stack-bullet"></div>Git · CI/CD</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner reveal">
+    <div class="contact-eyebrow">// Open Channel</div>
+    <h2 class="contact-title">GOT A<br>PROBLEM?</h2>
+    <p class="contact-sub">If you have something that needs solving — especially something nobody's named yet — let's talk.</p>
+    <div class="contact-links">
+      <a href="mailto:harpreetk2146@gmail.com" class="contact-link">harpreetk2146@gmail.com</a>
+      <a href="https://github.com/harpreet-2146" target="_blank" class="contact-link">GitHub ↗</a>
+      <a href="https://www.linkedin.com/in/harpreetk21/" target="_blank" class="contact-link">LinkedIn ↗</a>
+    </div>
+  </div>
+  <div class="footer-bar">
+    <p>© Harpreet Kaur Gothra</p>
+    <p>⚡ Built different.</p>
+  </div>
+</section>
+
+<script>
+// Cursor
+const cur = document.getElementById('cursor'), ring = document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; cur.style.left=mx+'px'; cur.style.top=my+'px'; });
+(function tick(){ rx+=(mx-rx)*.1; ry+=(my-ry)*.1; ring.style.left=rx+'px'; ring.style.top=ry+'px'; requestAnimationFrame(tick); })();
+document.querySelectorAll('a,.comic-panel,.btn').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ ring.style.width='52px'; ring.style.height='52px'; cur.style.opacity='0'; });
+  el.addEventListener('mouseleave',()=>{ ring.style.width='36px'; ring.style.height='36px'; cur.style.opacity='1'; });
+});
+
+// POW on panel click
+document.querySelectorAll('.comic-panel').forEach(panel => {
+  panel.addEventListener('click', e => {
+    const words = ['POW!','BAM!','ZAP!','WOW!','YES!'];
+    const el = document.createElement('div');
+    el.className = 'pow';
+    el.textContent = words[Math.floor(Math.random()*words.length)];
+    el.style.left = e.clientX + 'px';
+    el.style.top = e.clientY + 'px';
+    el.style.position = 'fixed';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 800);
+  });
+});
+
+// Scroll reveal
+const obs = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }), { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// THREE.JS — animated halftone dot field in hero
+(function(){
+  const canvas = document.getElementById('hero-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setClearColor(0x000000, 0);
+  canvas.style.opacity = "0.5";
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.OrthographicCamera(-innerWidth/2, innerWidth/2, innerHeight/2, -innerHeight/2, 0.1, 100);
+  camera.position.z = 10;
+
+  // Grid of discs — the halftone effect
+  const COLS = Math.ceil(innerWidth / 28) + 2;
+  const ROWS = Math.ceil(innerHeight / 28) + 2;
+  const COUNT = COLS * ROWS;
+  const SPACING = 28;
+
+  const discGeo = new THREE.CircleGeometry(1, 7);
+  const discMat = new THREE.MeshBasicMaterial({ color: 0xffd400 });
+  const mesh = new THREE.InstancedMesh(discGeo, discMat, COUNT);
+  mesh.instanceMatrix.setUsage(35048); // DYNAMIC_DRAW
+  scene.add(mesh);
+
+  const dummy = new THREE.Object3D();
+  const basePositions = [];
+
+  // lay out the grid
+  const startX = -innerWidth/2 + SPACING/2;
+  const startY = -innerHeight/2 + SPACING/2;
+  for(let row = 0; row < ROWS; row++){
+    for(let col = 0; col < COLS; col++){
+      basePositions.push({
+        x: startX + col * SPACING,
+        y: startY + row * SPACING,
+        i: row * COLS + col
+      });
+    }
+  }
+
+  let mouseX = 0, mouseY = 0;
+  document.addEventListener('mousemove', e => {
+    mouseX = e.clientX - innerWidth/2;
+    mouseY = -(e.clientY - innerHeight/2);
+  });
+
+  function animate(t){
+    requestAnimationFrame(animate);
+    const time = t * 0.001;
+
+    for(let idx = 0; idx < basePositions.length; idx++){
+      const {x, y, i} = basePositions[idx];
+      // base pulse from sin wave across the grid
+      const wave = Math.sin(time * 1.2 + x * 0.03 + y * 0.04) * 0.5 + 0.5;
+      // mouse proximity — discs near cursor grow
+      const dx = x - mouseX, dy = y - mouseY;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      const mouseInfluence = Math.max(0, 1 - dist / 120);
+      const scale = (0.5 + wave * 0.9 + mouseInfluence * 2.0);
+
+      dummy.position.set(x, y, 0);
+      dummy.scale.setScalar(scale);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(i, dummy.matrix);
+
+      const r = Math.floor(255 * (wave * 0.3 + 0.7));
+      const g = Math.floor(212 * wave);
+      const b = 0;
+      mesh.setColorAt(i, new THREE.Color(`rgb(${r},${g},${b})`));
+    }
+
+    mesh.instanceMatrix.needsUpdate = true;
+    if(mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+
+    renderer.render(scene, camera);
+  }
+
+  animate(0);
+
+  window.addEventListener('resize', () => {
+    renderer.setSize(innerWidth, innerHeight);
+    camera.left = -innerWidth/2; camera.right = innerWidth/2;
+    camera.top = innerHeight/2; camera.bottom = -innerHeight/2;
+    camera.updateProjectionMatrix();
+  });
+})();
+</script>
+</body>
+</html>
